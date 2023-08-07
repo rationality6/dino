@@ -6,7 +6,7 @@ import OpeningScene from './scenes/Opening';
 new Phaser.Game(
   Object.assign(config, {
     scene: [
-      new OpeningScene,
+      // new OpeningScene,
       new GameScene,
     ]
   })

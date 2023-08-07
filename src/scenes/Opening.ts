@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 
 class OpeningScene extends Phaser.Scene {
+
   constructor() {
     super("OpeningScene");
   }
@@ -72,6 +73,7 @@ class OpeningScene extends Phaser.Scene {
   }
 
   create() {
+
     this.add.tileSprite(0, this.gemeHeight, 1000, 26, "ground").setOrigin(0, 3);
 
     this.createLee();
