@@ -1,7 +1,10 @@
+import GameScene from "../scenes/Game";
+
 class Player extends Phaser.Physics.Arcade.Sprite {
   cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  declare scene: GameScene
 
-  constructor(scene: Phaser.Scene, x: number, y: number, key: string) {
+  constructor(scene: GameScene, x: number, y: number, key: string) {
     super(scene, x, y, key);
 
     scene.add.existing(this);
@@ -14,10 +17,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   init() {
     this.cursors = this.scene.input.keyboard.createCursorKeys();
 
-    this.displayHeight = 80;
-    this.displayWidth = 80;
-
-    this.setGravityY(3000);
+    this.setGravityY(5000);
     this.setCollideWorldBounds(true);
 
     this.registerAnimations();
@@ -28,7 +28,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
     spaceBar.on("down", () => {
-      this.setVelocityY(-1200);
+      this.setVelocityY(-300);
     });
 
     const arrowRight = this.scene.input.keyboard.addKey(
@@ -66,9 +66,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityY(-1300);
     }
 
+    if(!this.scene.isGameRunning){
+      return
+    }
+
     if (this.body.deltaAbsY() > 0) {
       this.anims.stop();
-    }else{
+    } else {
       this.playRunAnimation();
     }
   }
