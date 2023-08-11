@@ -1,7 +1,7 @@
 class GameScene extends Phaser.Scene {
   isGameRunning: boolean = false;
 
-  get gemeHeight() {
+  get gameHeight() {
     return this.game.config.height as number;
   }
 

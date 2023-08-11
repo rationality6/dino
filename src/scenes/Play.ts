@@ -8,6 +8,11 @@ class PlayScene extends GameScene {
   startTrigger!: SpriteWithDynamicBody;
   ground!: Phaser.GameObjects.TileSprite;
 
+  spawnInterval: number = 1500;
+  spawnTime: number = 0;
+
+  obstacleGroup!: Phaser.Physics.Arcade.Group;
+
   constructor() {
     super("PlayScene");
   }
@@ -18,15 +23,24 @@ class PlayScene extends GameScene {
     this.load.image("lee", "assets/lee_final.png");
     this.load.image("dino", "assets/dino-idle.png");
 
-    this.load.spritesheet("dino-run", "assets/dino-run.png",{
+    this.load.image("cactus1", "assets/obstacles/cactuses_1.png");
+    this.load.image("cactus2", "assets/obstacles/cactuses_2.png");
+    this.load.image("cactus3", "assets/obstacles/cactuses_3.png");
+    this.load.image("cactus4", "assets/obstacles/cactuses_4.png");
+    this.load.image("cactus5", "assets/obstacles/cactuses_5.png");
+    this.load.image("cactus6", "assets/obstacles/cactuses_6.png");
+
+    this.load.spritesheet("dino-run", "assets/dino-run.png", {
       frameWidth: 88,
       frameHeight: 94,
     });
+
+    this.obstacleGroup = this.physics.add.group();
   }
 
   setStartTrigger() {
     this.startTrigger = this.physics.add
-      .sprite(60, 250, '')
+      .sprite(60, 250, "")
       .setAlpha(0)
       .setOrigin(0, 0);
 
@@ -42,7 +56,7 @@ class PlayScene extends GameScene {
         loop: true,
         callback: () => {
           this.ground.width = this.ground.width + 17 * 2;
-          this.player.playRunAnimation()
+          this.player.playRunAnimation();
           if (this.ground.width >= this.gameWidth) {
             console.log("ground width", this.ground.width);
             rollOutEvent.remove();
@@ -50,7 +64,6 @@ class PlayScene extends GameScene {
           }
         },
       });
-
     });
   }
 
@@ -59,10 +72,32 @@ class PlayScene extends GameScene {
     this.createPlayer();
 
     this.setStartTrigger();
-
   }
 
-  update(time: number, delta: number): void {}
+  update(time: number, delta: number): void {
+    this.spawnTime += delta;
+
+    if (this.spawnTime >= this.spawnInterval) {
+      console.log("spawn");
+      this.spawnObstacle();
+      this.spawnTime = 0;
+    }
+  }
+
+  spawnObstacle() {
+    const selectedNumber = Math.floor(Math.random() * 6) + 1;
+    const distance = Phaser.Math.Between(600, 900);
+
+    // let cactuse = this.physics.add.image(1000, 330, `cactus${selectedNumber}`).setOrigin(0, 0);
+    // cactuse.setVelocityX(-350);
+
+    // this.physics.add.collider(this.player, cactuse, () => {
+    //   console.log("hit");
+    // });
+
+    this.obstacleGroup.create(distance, this.gameHeight, `cactus${selectedNumber}`).setOrigin(0, 1).setVelocityX(-350);
+
+  }
 
   createPlayer() {
     this.player = new Player(this, 100, 350, "dino");
@@ -70,11 +105,9 @@ class PlayScene extends GameScene {
 
   createEnvironment() {
     this.ground = this.add
-      .tileSprite(0, this.gemeHeight, 88, 26, "ground")
+      .tileSprite(0, this.gameHeight, 88, 26, "ground")
       .setOrigin(0, 1);
   }
-
-  
 }
 
 export default PlayScene;
