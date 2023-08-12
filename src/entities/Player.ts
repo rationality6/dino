@@ -24,6 +24,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.setCollideWorldBounds(true);
 
     this.registerAnimations();
+
+    this.scene.input.on(
+      "pointerdown",() => {
+        const onFloor = (this.body as Phaser.Physics.Arcade.Body).onFloor();
+        if (onFloor) {
+          this.setVelocityY(-1600);
+        }
+      },
+    );
+
   }
 
   registerPlayerControl() {
