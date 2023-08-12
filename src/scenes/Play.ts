@@ -25,6 +25,7 @@ class PlayScene extends GameScene {
 
     this.load.image("lee", "assets/lee_final.png");
     this.load.image("dino", "assets/dino-idle.png");
+    this.load.image("dino-hurt", "assets/dino-hurt.png");
 
     [...Array(5)];
     this.load.image("cactus1", "assets/obstacles/cactuses_1.png");
@@ -48,6 +49,12 @@ class PlayScene extends GameScene {
       .setAlpha(0)
       .setOrigin(0, 0);
 
+    this.physics.add.collider(this.player, this.obstacleGroup, () => {
+      this.player.die()
+      this.physics.pause();
+      this.isGameRunning = false;
+    });
+
     this.physics.add.overlap(this.startTrigger, this.player, () => {
       if (this.startTrigger.x === 60) {
         this.startTrigger.body.reset(60, 380);
@@ -62,7 +69,6 @@ class PlayScene extends GameScene {
           this.ground.width = this.ground.width + 17 * 2;
           this.player.playRunAnimation();
           if (this.ground.width >= this.gameWidth) {
-            console.log("ground width", this.ground.width);
             rollOutEvent.remove();
             this.isGameRunning = true;
           }
@@ -92,8 +98,6 @@ class PlayScene extends GameScene {
         -this.obstacleSpeed
       );
 
-      console.log(this.obstacleGroup.getChildren().length);
-
       this.obstacleGroup
         .getChildren()
         .forEach((obstacle: SpriteWithDynamicBody) => {
@@ -101,6 +105,8 @@ class PlayScene extends GameScene {
             this.obstacleGroup.remove(obstacle);
           }
         });
+
+      this.ground.tilePositionX += this.obstacleSpeed;
     }
   }
 
@@ -108,16 +114,11 @@ class PlayScene extends GameScene {
     const selectedNumber = Math.floor(Math.random() * 6) + 1;
     const distance = Phaser.Math.Between(1000, 1400);
 
-    // let cactuse = this.physics.add.image(1000, 330, `cactus${selectedNumber}`).setOrigin(0, 0);
-    // cactuse.setVelocityX(-350);
-
-    // this.physics.add.collider(this.player, cactuse, () => {
-    //   console.log("hit");
-    // });
-
-    this.obstacleGroup
+    const obstacle = this.obstacleGroup
       .create(distance, this.gameHeight, `cactus${selectedNumber}`)
       .setOrigin(0, 1);
+
+    obstacle.setImmovable(true);
   }
 
   createPlayer() {

@@ -2,7 +2,7 @@ import GameScene from "../scenes/Game";
 
 class Player extends Phaser.Physics.Arcade.Sprite {
   cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-  declare scene: GameScene
+  declare scene: GameScene;
 
   constructor(scene: GameScene, x: number, y: number, key: string) {
     super(scene, x, y, key);
@@ -16,6 +16,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   }
   init() {
     this.cursors = this.scene.input.keyboard.createCursorKeys();
+
+    // this.setDisplaySize(94, 94);
+    // this.setFlipX(true);
 
     this.setGravityY(5000);
     this.setCollideWorldBounds(true);
@@ -56,6 +59,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  die(){
+    this.anims.pause();
+    this.setTexture("dino-hurt");
+  }
+
   update() {
     const { space } = this.cursors;
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(space);
@@ -66,8 +74,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityY(-1600);
     }
 
-    if(!this.scene.isGameRunning){
-      return
+    if (!this.scene.isGameRunning) {
+      return;
     }
 
     if (this.body.deltaAbsY() > 0) {
