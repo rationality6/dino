@@ -63,7 +63,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     const onFloor = (this.body as Phaser.Physics.Arcade.Body).onFloor();
 
     if (isSpaceJustDown && onFloor) {
-      this.setVelocityY(-1300);
+      this.setVelocityY(-1600);
     }
 
     if(!this.scene.isGameRunning){
