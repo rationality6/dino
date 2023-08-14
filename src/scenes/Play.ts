@@ -10,11 +10,20 @@ class PlayScene extends GameScene {
 
   isGameRunning: boolean = false;
 
+  gameScore: number = 0;
+  scoreText: string = 0;
+  highScore: number = 0;
+  highScoreText: string = 0;
+
   spawnInterval: number = 1200;
   spawnTime: number = 0;
 
+  gameOverText!: Phaser.GameObjects.Image;
+  restartText!: Phaser.GameObjects.Image;
+  gameOverContainer!: Phaser.GameObjects.Container;
+
   obstacleGroup!: Phaser.Physics.Arcade.Group;
-  obstacleSpeed: number = 18;
+  obstacleSpeed: number = 10;
 
   constructor() {
     super("PlayScene");
@@ -27,13 +36,16 @@ class PlayScene extends GameScene {
     this.load.image("dino", "assets/dino-idle.png");
     this.load.image("dino-hurt", "assets/dino-hurt.png");
 
-    [...Array(5)];
-    this.load.image("cactus1", "assets/obstacles/cactuses_1.png");
-    this.load.image("cactus2", "assets/obstacles/cactuses_2.png");
-    this.load.image("cactus3", "assets/obstacles/cactuses_3.png");
-    this.load.image("cactus4", "assets/obstacles/cactuses_4.png");
-    this.load.image("cactus5", "assets/obstacles/cactuses_5.png");
-    this.load.image("cactus6", "assets/obstacles/cactuses_6.png");
+    [...Array(6).keys()].forEach((i) => {
+      const number = i + 1;
+      this.load.image(
+        `cactus${number}`,
+        `assets/obstacles/cactuses_${number}.png`
+      );
+    });
+
+    this.load.image("restart", "assets/restart.png");
+    this.load.image("game-over", "assets/game-over.png");
 
     this.load.spritesheet("dino-run", "assets/dino-run.png", {
       frameWidth: 88,
@@ -50,7 +62,8 @@ class PlayScene extends GameScene {
       .setOrigin(0, 0);
 
     this.physics.add.collider(this.player, this.obstacleGroup, () => {
-      this.player.die()
+      this.player.die();
+      this.gameOverContainer.setAlpha(1);
       this.physics.pause();
       this.isGameRunning = false;
     });
@@ -82,12 +95,49 @@ class PlayScene extends GameScene {
     this.createPlayer();
 
     this.setStartTrigger();
+
+    this.scoreText = this.add.text(50, 50, this.gameScore.toString(), {
+      fontSize: "30px",
+      fill: "#000000",
+    });
+
+    this.highScoreText = this.add.text(250, 50, this.highScore.toString(), {
+      fontSize: "30px",
+      fill: "#000000",
+    });
+
+    this.gameOverText = this.add.image(0, 0, "game-over");
+    this.restartText = this.add.image(0, 80, "restart").setInteractive();
+    this.gameOverContainer = this.add
+      .container(this.gameWidth / 2, this.gameHeight / 2 - 50)
+      .add([this.gameOverText, this.restartText])
+      .setAlpha(0);
+
+    this.restartText.on("pointerdown", () => {
+      this.physics.resume();
+      this.player.setVelocityY(0);
+      this.obstacleGroup.clear(true, true);
+      this.gameOverContainer.setAlpha(0);
+      this.anims.resumeAll();
+
+      if (this.gameScore > this.highScore) {
+        this.highScore = this.gameScore;
+        this.highScoreText.setText(`${this.highScore}`);
+      }
+
+      this.gameScore = 0;
+      this.isGameRunning = true;
+    });
   }
 
   update(time: number, delta: number): void {
     this.spawnTime += delta;
 
     if (this.isGameRunning) {
+      
+      this.gameScore += 1;
+      this.scoreText.setText(`${this.gameScore}`);
+
       if (this.spawnTime >= this.spawnInterval) {
         this.spawnObstacle();
         this.spawnTime = 0;
