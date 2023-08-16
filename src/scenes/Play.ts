@@ -52,6 +52,11 @@ class PlayScene extends GameScene {
       frameHeight: 94,
     });
 
+    this.load.spritesheet("dino-down", "assets/dino-down.png", {
+      frameWidth: 118,
+      frameHeight: 94,  
+    })
+
     this.obstacleGroup = this.physics.add.group();
   }
 

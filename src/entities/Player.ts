@@ -25,15 +25,18 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.registerAnimations();
 
-    this.scene.input.on(
-      "pointerdown",() => {
-        const onFloor = (this.body as Phaser.Physics.Arcade.Body).onFloor();
-        if (onFloor) {
-          this.setVelocityY(-1700);
-        }
-      },
-    );
+    this.scene.input.on("pointerdown", () => {
+      this.doJump();
+    });
 
+    this.registerPlayerControl();
+  }
+
+  doJump() {
+    const onFloor = (this.body as Phaser.Physics.Arcade.Body).onFloor();
+    if (onFloor) {
+      this.setVelocityY(-1700);
+    }
   }
 
   registerPlayerControl() {
@@ -41,7 +44,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
     spaceBar.on("down", () => {
-      this.setVelocityY(-300);
+      this.doJump();
     });
 
     const arrowRight = this.scene.input.keyboard.addKey(
@@ -69,19 +72,30 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  die(){
+  die() {
     this.anims.pause();
     this.setTexture("dino-hurt");
   }
 
   update() {
-    const { space } = this.cursors;
+    const { space, down } = this.cursors;
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(space);
+    const isDownJustDown = Phaser.Input.Keyboard.JustDown(down);
+    const isDownJustUp = Phaser.Input.Keyboard.JustUp(down);
 
     const onFloor = (this.body as Phaser.Physics.Arcade.Body).onFloor();
 
     if (isSpaceJustDown && onFloor) {
-      this.setVelocityY(-1700);
+      this.doJump();
+    }
+
+    if (isDownJustDown && onFloor) {
+      this.body.setSize(this.body.width, 58);
+      this.body.setOffset(30, 36);
+    }
+    if (isDownJustUp && onFloor) {
+      this.body.setSize(this.body.width, 94);
+      this.body.setOffset(0, 0);
     }
 
     if (!this.scene.isGameRunning) {
@@ -96,7 +110,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   playRunAnimation() {
-    this.play("dino-run", true);
+    this.body.height <= 58
+      ? this.play("dino-down", true)
+      : this.play("dino-run", true);
   }
 
   registerAnimations() {
@@ -104,6 +120,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       key: "dino-run",
       frames: this.anims.generateFrameNames("dino-run", { start: 2, end: 3 }),
       frameRate: 20,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: "dino-down",
+      frames: this.anims.generateFrameNames("dino-down"),
+      frameRate: 10,
       repeat: -1,
     });
   }
